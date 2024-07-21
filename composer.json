@@ -1,0 +1,35 @@
+{
+  "name": "azmanabdlh/gargantua",
+  "type": "library",
+  "version": "0.0.1",
+  "authors": [
+      {
+          "name": "Azman Abdullah",
+          "email": "azmanabdlh12@gmail.com"
+      }
+  ],
+  "require": {
+    "symfony/http-foundation": "^7.1"
+  },
+  "scripts": {
+    "test": "./vendor/bin/pest"
+  },
+  "require-dev": {
+    "pestphp/pest": "^2.34"
+  },
+  "autoload": {
+    "psr-4": {
+      "Gargantua\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Tests\\": "tests/"
+    }
+  },
+  "config": {
+    "allow-plugins": {
+      "pestphp/pest-plugin": true
+    }
+  }
+}
