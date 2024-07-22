@@ -56,10 +56,12 @@ class Form {
   ): Form {
     $pageLinked = new PageLinked();
 
-    foreach ($pages as $page) {
-      if ( $page instanceof Page ) {
-        $pageLinked->linked($page);
+    foreach ($pages as $idx => $page) {
+      if ( !($page instanceof Page) ) {
+        throw TypeError("invalid instance page");
       }
+      $node = new Node($idx, $page);
+      $pageLinked->insert(node);
     }
 
     if ($request == null ) {
@@ -80,7 +82,8 @@ class Form {
     }
 
     return new PageUtils(
-      $node,
+      $node->idx + 1,
+      $node->data,
     );
   }
 

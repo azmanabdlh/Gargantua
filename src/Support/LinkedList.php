@@ -8,6 +8,7 @@ use Closure;
 class Node {
   public function __construct(
     public ?Page $data,
+    public int $idx,
     public ?Node $prev = null,
     public ?Node $next = null
   ) {}
@@ -36,7 +37,7 @@ class LinkedList {
     }
   }
 
-  protected function insert(Node $newNode): void {
+  public function insert(Node $newNode): void {
     if ($this->head == null) {
       $this->head = &$newNode;
       return;

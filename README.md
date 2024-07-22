@@ -112,7 +112,10 @@ public function icon(): string {
   return "<img .../>"; // or <i icon="user-account"></i>
 }
 ```
-
+```php
+// get current page number.
+public function number(): int
+```
 
 
 ### Cable
