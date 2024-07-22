@@ -38,9 +38,4 @@ class PageLinked extends LinkedList {
 
     throw new ValueError("empty page");
   }
-
-  public function linked(Page $page): void {
-    $node = new Node($page);
-    parent::insert($node);
-  }
 }

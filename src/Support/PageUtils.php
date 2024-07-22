@@ -9,7 +9,8 @@ use Gargantua\Contract\CanNvigateBack;
 class PageUtils {
 
   public function __construct(
-    private Node $head
+    private int $pageNumber,
+    private Page $page
   ) {}
 
   public function is(string $pageName): bool {
@@ -25,11 +26,15 @@ class PageUtils {
     return "";
   }
 
-  public function label(): bool {
+  public function label(): string {
     if ($this->page instanceof CanLabel) {
       return $this->page->label();
     }
 
     return "";
+  }
+
+  public function number(): int {
+    return $this->pageNumber;
   }
 }
