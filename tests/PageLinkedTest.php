@@ -34,12 +34,13 @@ function mockPageLinked() : array {
 
   $pages = [$signUp, $onboarding];
 
-  foreach ($pages as $page ) {
-    $pageLinked->linked($page);
+  foreach ($pages as $idx => $page ) {
+    $node = new Node($page, $idx);
+    $pageLinked->insert($node);
   }
 
-  $head = new Node($signUp);
-  $head->next = new Node($onboarding);
+  $head = new Node($signUp, 0);
+  $head->next = new Node($onboarding, 1);
   $head->next->prev = $head;
 
   return [$pageLinked, $head];

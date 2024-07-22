@@ -2,21 +2,11 @@
 
 namespace Gargantua;
 
-enum RequestType: string {
-  case Submit;
-  case NavigateBack;
 
-  public function toString(): string
-  {
-      return match($this)
-      {
-        RequestType::Submit => 'submit',
-        RequestType::NavigateBack => 'navigate:back',
-      };
-  }
-}
+class Event {
+  public const Next = "next";
 
+  public const RequestSubmit = "submit";
 
-enum Event: string {
-  case Next;
+  public const RequestBack = "navigate:back";
 }

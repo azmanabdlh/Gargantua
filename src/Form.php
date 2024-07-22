@@ -14,6 +14,7 @@ use Gargantua\Contract\CanNavigateBack;
 use Gargantua\Cache\Cookie;
 use Gargantua\Support\EventEmitter;
 use Gargantua\Support\PageUtils;
+use Gargantua\Support\Node;
 use Gargantua\PageLinked;
 use Gargantua\RequestType;
 use Gargantua\Event;
@@ -36,11 +37,11 @@ class Form {
   }
 
   private function initialize(): void {
-    $this->emitter->on(RequestType::Submit, function (Page $page, Request $request) {
+    $this->emitter->on(Event::RequestSubmit, function (Page $page, Request $request) {
       $page->onSubmit($request);
     });
 
-    $this->emitter->on(RequestType::NavigateBack, function (CanNavigateBack $page) {
+    $this->emitter->on(Event::RequestBack, function (CanNavigateBack $page) {
       $page->onNavigateBack();
     });
 
@@ -50,9 +51,9 @@ class Form {
   }
 
   public static function provide(
-    array $pages = [],
+    array $pages,
     Cache $cache = new Cookie(),
-    Request $request
+    Request $request = null
   ): Form {
     $pageLinked = new PageLinked();
 
@@ -60,8 +61,9 @@ class Form {
       if ( !($page instanceof Page) ) {
         throw TypeError("invalid instance page");
       }
-      $node = new Node($idx, $page);
-      $pageLinked->insert(node);
+
+      $node = new Node($page, $idx);
+      $pageLinked->insert($node);
     }
 
     if ($request == null ) {
@@ -85,6 +87,16 @@ class Form {
       $node->idx + 1,
       $node->data,
     );
+  }
+
+  public function canBack(): bool {
+    $node = $this->getCurrentNode();
+    return ($node->canBack() && ($node->prev->data instanceof CanNavigateBack));
+  }
+
+  public function last(): bool {
+    $node = $this->getCurrentNode();
+    return !$node->canNext();
   }
 
   public function capture(array $cable = []): void {
@@ -119,7 +131,7 @@ class Form {
       }
     }
 
-    if ($this->onNavigateBack() && ( $node->canPrev() &&  $node->prev instanceof CanNavigateBack)) {
+    if ($this->onNavigateBack() && ( $node->canBack() &&  $node->prev instanceof CanNavigateBack)) {
       $page = $node->prev->data;
       $this->emitter->emit(RequestType::NavigateBack, $page);
     }
@@ -135,7 +147,7 @@ class Form {
     $pageName = $this->cache->get("pageName");
     $node = $this->linked->beginning();
 
-    if ($curPageName != "") {
+    if ($pageName != "") {
       $node = $this->linked->traversalByPageName($pageName);
     }
 
@@ -144,10 +156,10 @@ class Form {
 
 
   public function onSubmitted(): bool {
-    return $this->request->isMethod("POST") && $this->request->get(RequestType::Submit->toString());
+    return $this->request->isMethod("POST") && $this->request->get(Event::RequestSubmit);
   }
 
   public function onNavigateBack(): bool {
-    return $this->request->isMethod("POST") && $this->request->get(RequestType::NavigateBack->toString());
+    return $this->request->isMethod("POST") && $this->request->get(Event::RequestBack);
   }
 }

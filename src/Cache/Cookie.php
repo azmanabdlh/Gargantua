@@ -1,13 +1,14 @@
 <?php
 
-namespace Gargantua\Session;
 
+namespace Gargantua\Cache;
 
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Cookie as CookieUtils;
 use Symfony\Component\HttpFoundation\Request;
 
-namespace Gargantua\Contract\Cache;
+use Gargantua\Contract\Cache;
+
 
 class Cookie implements Cache {
 

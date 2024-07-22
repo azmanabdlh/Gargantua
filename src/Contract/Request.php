@@ -3,8 +3,8 @@
 namespace Gargantua\Contract;
 
 interface Request {
-  function get(string $key): string;
-  function all(): array;
+  function get(string $key, mixed $default = null): mixed;
+  function toArray(): array;
 }
 
 
