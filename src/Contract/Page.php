@@ -13,3 +13,9 @@ interface CanNavigateBack {
   function onNavigateBack(): void;
 }
 
+interface CanLabel {
+  function icon(): string;
+
+  function label(): string;
+}
+

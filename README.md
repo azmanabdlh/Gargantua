@@ -93,8 +93,24 @@ public function onNavigateBack(): void
 PageUtils provide Page utilities
 
 ```php
-// validate current page is active.
+// validate page is active.
 public function is(string $pageName): bool
+```
+
+```php
+// get page label.
+public function label(): string
+```
+
+```php
+// get page icon.
+public function icon(): string
+
+
+// example
+public function icon(): string {
+  return "<img .../>"; // or <i icon="user-account"></i>
+}
 ```
 
 
