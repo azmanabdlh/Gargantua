@@ -4,33 +4,31 @@ namespace Gargantua;
 
 use ValueError;
 use TypeError;
-use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 
-use Gargantua\Contract\Cache;
+use Gargantua\Contract\Session;
 use Gargantua\Contract\Page;
-use Gargantua\Contract\Request;
 use Gargantua\Contract\Cable;
 use Gargantua\Contract\CanNavigateBack;
-use Gargantua\Cache\Cookie;
-use Gargantua\Support\EventEmitter;
 use Gargantua\Support\PageUtils;
 use Gargantua\Support\Node;
 use Gargantua\PageLinked;
-use Gargantua\RequestType;
 use Gargantua\Event;
+use Gargantua\EventEmitter;
+use Gargantua\CookieSessionHandler;
+use Gargantua\Http\Request;
 
 
 class Form {
 
   private EventEmitter $emitter;
 
+  private Request $request;
+
   public function __construct(
     private PageLinked $linked,
-    private Cache $cache,
-    private Request $request
+    private Session $session
   ) {
-    $this->request = $request;
-    $this->cache = $cache;
+    $this->request = Request::createFromGlobals();
     $this->emitter = new EventEmitter();
 
     $this->initialize();
@@ -52,8 +50,7 @@ class Form {
 
   public static function provide(
     array $pages,
-    Cache $cache = new Cookie(),
-    Request $request = null
+    Session $session = null,
   ): Form {
     $pageLinked = new PageLinked();
 
@@ -66,14 +63,15 @@ class Form {
       $pageLinked->insert($node);
     }
 
-    if ($request == null ) {
-      $request = SymfonyRequest::createFromGlobals();
+    if ($session == null) {
+      $session = new CookieSessionHandler(
+        $pageLinked->beginning()
+      );
     }
 
     return new Form(
       $pageLinked,
-      $cache,
-      $request
+      $session,
     );
   }
 
@@ -91,11 +89,13 @@ class Form {
 
   public function canBack(): bool {
     $node = $this->getCurrentNode();
-    return ($node->canBack() && ($node->prev->data instanceof CanNavigateBack));
+
+    return $node->canBack();
   }
 
   public function last(): bool {
     $node = $this->getCurrentNode();
+
     return !$node->canNext();
   }
 
@@ -103,48 +103,42 @@ class Form {
     $node = $this->getCurrentNode();
     $page = $node->data;
 
-    if ($this->onSubmitted()) {
+    if ($this->request->onSubmitted()) {
       foreach ($cable as $it) {
         if ( !($it instanceof Cable) ) {
-          throw new TypeError("invalid argument cable type");
+          continue;
         }
 
-        $it->handle($payload, fn() => $this->emitter->emit(RequestType::Submit, $page, $this->request));
+        $it->handle($this->request);
       }
 
-      if (count($cable) == 0) {
-        $this->emitter->emit(RequestType::Submit, $page, $this->request);
-      }
+      $this->emitter->emit(Event::RequestSubmit, $page, $this->request);
 
       $isCompleted = !$node->canNext();
 
       if ($node->canNext()) {
         $page = $node->next->data;
 
-        $this->emitter->emit(Event::Next, $page, $this->request->all());
+        $this->emitter->emit(Event::Next, $page, $this->request->getPayload()->all());
       };
 
       if ($isCompleted) {
         $this->linked->invoke("onCompleted");
-        $this->cache->flush();
+        $this->session->flush();
         return;
       }
     }
 
-    if ($this->onNavigateBack() && ( $node->canBack() &&  $node->prev instanceof CanNavigateBack)) {
+    if ($this->request->onBack() && $node->canBack() ) {
       $page = $node->prev->data;
-      $this->emitter->emit(RequestType::NavigateBack, $page);
+      $this->emitter->emit(Event::RequestBack, $page);
     }
 
-
-    $this->cache->store(
-      "pageName",
-      $page->pageName()
-    );
+    $this->session->store($page->pageName());
   }
 
   private function getCurrentNode(): Node {
-    $pageName = $this->cache->get("pageName");
+    $pageName = $this->session->get();
     $node = $this->linked->beginning();
 
     if ($pageName != "") {
@@ -152,14 +146,5 @@ class Form {
     }
 
     return $node;
-  }
-
-
-  public function onSubmitted(): bool {
-    return $this->request->isMethod("POST") && $this->request->get(Event::RequestSubmit);
-  }
-
-  public function onNavigateBack(): bool {
-    return $this->request->isMethod("POST") && $this->request->get(Event::RequestBack);
   }
 }

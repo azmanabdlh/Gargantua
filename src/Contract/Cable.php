@@ -2,8 +2,8 @@
 
 namespace Gargantua\Contract;
 
-use Closure;
+use Gargantua\Http\Request;
 
 interface Cable {
-  function handle(array $payload, Closure $next): void;
+  function handle(Request $request): void;
 }

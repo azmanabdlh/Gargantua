@@ -3,7 +3,7 @@
 use Gargantua\PageLinked;
 use Gargantua\Contract\Page;
 use Gargantua\Support\Node;
-
+use Gargantua\Http\Request;
 
 function mockPageLinked() : array {
   $pageLinked = new PageLinked();
@@ -13,7 +13,7 @@ function mockPageLinked() : array {
       return "signUp";
     }
 
-    public function onSubmit(array $payload): void {}
+    public function onSubmit(Request $request): void {}
 
     public function onNext(array $payload): void {}
 
@@ -25,7 +25,7 @@ function mockPageLinked() : array {
       return "onboarding";
     }
 
-    public function onSubmit(array $payload): void {}
+    public function onSubmit(Request $request): void {}
 
     public function onNext(array $payload): void {}
 

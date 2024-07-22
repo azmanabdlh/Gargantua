@@ -6,7 +6,7 @@ Form wizard can be challenging and may require a higher effort to complete them.
 
 #### Table of Content
 * [Installation](#installation)
-* [Quick Start](#quick-start)
+  * [Quick Start](#quick-start)
 * [API](#api)
   * [Form](#form)
   * [Page](#page)
@@ -18,27 +18,25 @@ Form wizard can be challenging and may require a higher effort to complete them.
 
 
 ## Installation
-Before you install, it's important to check that your PHP version should be `PHP 8.1+`.
+Before you install, it is important to check that your PHP version at least `PHP 7.1+`.
 ```bash
 composer require azmanabdlh/gargantua
 ```
-
-## Quick Start
-![quick-start](/quick-demo.png)
+### Quick Start
+Read the **[example test](https://github.com/mondediefr/docker-flarum)** to get started.
 
 ## API
 
 ### Form
 ```php
-use Gargantua\Contract\Cache;
+use Gargantua\Contract\Session;
 use Gargantua\Contract\Page;
 use Gargantua\Contract\Request;
 
 
 public static function provide(
   Page[] $page,
-  Cache $cache,
-  Request $request
+  Session $session,
 ): Form
 ```
 
@@ -129,7 +127,7 @@ $form->capture([
 
 
 // handle logic.
-function handle(Request $request, Closure $next): void
+function handle(Request $request): void
 ```
 
 

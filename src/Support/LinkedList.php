@@ -3,6 +3,7 @@
 namespace Gargantua\Support;
 
 use Gargantua\Contract\Page;
+use Gargantua\Contract\CanNavigateBack;
 use Closure;
 
 class Node {
@@ -14,7 +15,7 @@ class Node {
   ) {}
 
   public function canBack(): bool {
-    return $this->prev !== null;
+    return $this->prev !== null && $this->prev->data instanceof CanNavigateBack;
   }
 
   public function canNext(): bool {
@@ -43,13 +44,11 @@ class LinkedList {
       return;
     }
 
-
     $node = $this->head;
 
     while($node->canNext()) {
       $node = $node->next;
     }
-
 
     $newNode->prev = $node;
     $node->next = $newNode;

@@ -10,3 +10,4 @@ class Event {
 
   public const RequestBack = "navigate:back";
 }
+

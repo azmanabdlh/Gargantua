@@ -3,12 +3,11 @@
 
 use Gargantua\Form;
 use Gargantua\PageLinked;
-use Gargantua\Cache\Cookie;
 use Gargantua\Contract\Page;
 use Gargantua\Contract\CanNavigateBack;
-use Gargantua\Contract\Request;
-use Gargantua\Contract\Cache;
+use Gargantua\Contract\Session;
 use Gargantua\Support\PageUtils;
+use Gargantua\Http\Request;
 
 
 function mockPage() : array {
@@ -17,7 +16,7 @@ function mockPage() : array {
       return "signUp";
     }
 
-    public function onSubmit(array $payload): void {}
+    public function onSubmit(Request $request): void {}
 
     public function onNext(array $payload): void {}
 
@@ -33,7 +32,7 @@ function mockPage() : array {
       return "onboarding";
     }
 
-    public function onSubmit(array $payload): void {}
+    public function onSubmit(Request $request): void {}
 
     public function onNext(array $payload): void {}
 
@@ -46,13 +45,11 @@ function mockPage() : array {
 
 test("build instance form", function() {
   $pages = mockPage();
-  $cache = Mockery::mock(Cache::class);
-  $request = Mockery::mock(Request::class);
+  $session = Mockery::mock(Session::class);
 
   $form = Form::provide(
     $pages,
-    $cache,
-    $request
+    $session
   );
   expect($form)->toBeInstanceOf(Form::class);
 });
@@ -60,53 +57,45 @@ test("build instance form", function() {
 
 test("get form page", function() {
   [$signUp, $onboarding] = mockPage();
-  $cache = Mockery::mock(Cache::class);
-  $request = Mockery::mock(Request::class);
-
-
+  $session = Mockery::mock(Session::class);
 
   $form = Form::provide(
     [$signUp, $onboarding],
-    $cache,
-    $request
+    $session
   );
 
-  $cache->shouldReceive('get')->once()->andReturn("");
+  $session->shouldReceive('get')->once()->andReturn("");
   expect($form->page())->toEqual(new PageUtils(1, $signUp));
 
 
-  $cache->shouldReceive('get')->once()->andReturn($onboarding->pageName());
+  $session->shouldReceive('get')->once()->andReturn($onboarding->pageName());
   expect($form->page())->toEqual(new PageUtils(2, $onboarding));
 });
 
 
 test("get form page can be back", function() {
   [$signUp, $onboarding] = mockPage();
-  $cache = Mockery::mock(Cache::class);
-  $request = Mockery::mock(Request::class);
+  $session = Mockery::mock(Session::class);
 
   $form = Form::provide(
     [$signUp, $onboarding],
-    $cache,
-    $request
+    $session,
   );
 
-  $cache->shouldReceive('get')->andReturn($onboarding->pageName());
+  $session->shouldReceive('get')->andReturn($onboarding->pageName());
   expect($form->canBack())->toBeTrue();
 });
 
 
 test("get last form page", function() {
   [$signUp, $onboarding] = mockPage();
-  $cache = Mockery::mock(Cache::class);
-  $request = Mockery::mock(Request::class);
+  $session = Mockery::mock(Session::class);
 
   $form = Form::provide(
     [$signUp, $onboarding],
-    $cache,
-    $request
+    $session,
   );
 
-  $cache->shouldReceive('get')->andReturn($onboarding->pageName());
+  $session->shouldReceive('get')->andReturn($onboarding->pageName());
   expect($form->last())->toBeTrue();
 });

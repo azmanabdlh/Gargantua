@@ -1,6 +1,6 @@
 <?php
 
-namespace Gargantua\Support;
+namespace Gargantua;
 
 class EventEmitter {
 
@@ -38,4 +38,9 @@ class EventEmitter {
       call_user_func_array($listener, $arguments);
     }
   }
+
+  private function listeners($event) {
+    return isset($this->listeners[$event]) ? $this->listeners[$event] : [];
+  }
+
 }
