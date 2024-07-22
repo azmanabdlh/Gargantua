@@ -131,3 +131,7 @@ $form->capture([
 // handle logic.
 function handle(Request $request, Closure $next): void
 ```
+
+
+## License
+Licensed under [MIT](http://www.opensource.org/licenses/mit-license.php). Totally free for private or commercial projects, or any other uses.
