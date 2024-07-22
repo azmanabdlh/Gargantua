@@ -12,13 +12,13 @@ Form wizard can be challenging and may require a higher effort to complete them.
   * [Page](#page)
   * [PageUtils](#pageutils)
   * [Cable](#cable)
-
+* [License](#license)
 
 
 
 
 ## Installation
-Before you install, it's important to check that your PHP version should be `PHP 7.3+`.
+Before you install, it's important to check that your PHP version should be `PHP 8.1+`.
 ```bash
 composer require azmanabdlh/gargantua
 ```
