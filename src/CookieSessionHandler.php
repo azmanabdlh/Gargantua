@@ -35,7 +35,10 @@ class CookieSessionHandler implements Session {
     $pages = [];
     while (true) {
       $key = $node->data->pageName();
-      $pages[$key] = [];
+      $pages[$key] = [
+        "last" => !$node->canNext(),
+        "beginning" => !$node->canBack(),
+      ];
 
       if ($node->canBack()) {
         $prevNode = $node->prev;
@@ -59,8 +62,12 @@ class CookieSessionHandler implements Session {
     return isset($this->pages[$key]) ? $this->pages[$key] : [];
   }
 
+  private function getCookie(): string {
+    return $this->request->cookies->get(self::CurrPageKey) ?? "";
+  }
+
   public function get(): string {
-    $currPageKey = $this->request->cookies->get(self::CurrPageKey) ?? "";
+    $currPageKey = $this->getCookie();
 
     if ($currPageKey == "") {
       return "";
@@ -68,8 +75,16 @@ class CookieSessionHandler implements Session {
 
     $curPage = $this->getPage($currPageKey);
 
-    if ($this->request->onSubmitted() && isset($curPage["next"])) {
-      $currPageKey = $curPage["next"];
+    if ($this->request->onSubmitted()) {
+      if (isset($curPage["next"])) {
+        $currPageKey = $curPage["next"];
+      }
+
+      if ($curPage["last"] == 1) {
+        $head = array_filter($this->pages, fn($page) => $page["beginning"] == 1);
+        $key = array_keys($head)[0];
+        $currPageKey = $key;
+      }
     }
 
     if ($this->request->onBack() && isset($curPage["prev"]) ) {
