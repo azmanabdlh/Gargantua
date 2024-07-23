@@ -114,7 +114,7 @@ class Form {
 
       $this->emitter->emit(Event::RequestSubmit, $page, $this->request);
 
-      $isCompleted = !$node->canNext();
+      $isCompleted = $node->canNext();
 
       if ($node->canNext()) {
         $page = $node->next->data;
